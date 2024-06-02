@@ -22,9 +22,9 @@ export default function Login() {
   const googleLoginRedir = () => {
     // OAuth 링크
     window.location.href =
-      "https://accounts.google.com/o/oauth2/auth?" +
-      "client_id={클라이언트 ID}&" +
-      "redirect_uri={/login}&" +
+      "https://accounts.google.com/o/oauth2/v2/auth?" +
+      `client_id=${process.env.NEXT_PUBLIC_CLIENT_ID}` +
+      "redirect_uri=http://localhost:3000/login&" +
       "response_type=token&" +
       "scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
   };
