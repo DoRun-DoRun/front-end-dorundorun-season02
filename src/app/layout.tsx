@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "./_shared/_components/header";
-import Footer from "./_shared/_components/footer";
+import Header from "./_shared/_components/_layouts/header";
+import Footer from "./_shared/_components/_layouts/footer";
 
 export default function RootLayout({
   children,
