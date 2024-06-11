@@ -4,39 +4,36 @@ import ButtonSecondary from "@/app/_shared/_components/_common/_buttons/ButtonSe
 import Input from "@/app/_shared/_components/_common/_inputs/Input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { InputValidationRules, SubmitHandler, useForm } from "react-hook-form";
 
 interface IFormData {
   email: string;
-  password : string
+  password: string;
 }
 export default function Login() {
   const router = useRouter();
+  const [displayPass, setDisplayPass] = useState(false);
   const [loginForm, setLoginForm] = useState<IFormData>({
     email: "",
     password: "",
   });
 
   const {
-    register: loginEmail,
-    handleSubmit: handleSubmitEmail,
-    formState: { errors: emailError },
+    register,
+    handleSubmit,
+    formState: { errors },
   } = useForm<IFormData>({
     defaultValues: {
       email: "",
-    },
-  });
-
-  const {
-    register: loginPassword,
-    handleSubmit: handleSubmitPassword,
-    formState: { errors: passwordError },
-  } = useForm<IFormData>({
-    defaultValues: {
       password: "",
     },
   });
+
+  const passwordDisplayToggle = () => {
+    setDisplayPass((prev) => !prev);
+    console.log(displayPass);
+  };
 
   const onSubmit: SubmitHandler<IFormData> = (data) => {
     console.log(data);
@@ -52,44 +49,99 @@ export default function Login() {
       "scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
   };
 
+  const naverLoginRedir = () => {
+    window.location.href =
+      `https://nid.naver.com/oauth2.0/authorize` +
+      `?response_type=code&` +
+      `client_id=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}` +
+      `&redirect_uri=http://localhost:3000/login/naver/auth&` +
+      "state=asd2222222";
+  };
+
   return (
     <div className="flex flex-col gap-1 w-1/2">
-      <div className="flex justify-center">
-        <h1 className="text-center">로그인</h1>
+      <div className="text-center">
+        <h1 className="font-bold">(서비스명)</h1>
+        <p>프롬프트를 공유하는 최초의 플랫폼</p>
       </div>
-      <form className="flex flex-col">
-        <Input
-          register={loginEmail("email", { required: "이메일을 입력해 주세요" })}
-          type="email"
-          id=""
-          defaultValue={loginForm.email}
-          placeholder="email"
-        />
-        <Input
-          register={loginPassword("password", {
-            required: "비밀번호를 입력해 주세요",
-          })}
-          type="password"
-          id=""
-          defaultValue={loginForm.password}
-          placeholder="password"
-        />
-        <ButtonPrimary type="submit" disabled={false}>
-          Login
-        </ButtonPrimary>
-        <div className="flex justify-end gap-5">
+      <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+        <div className="mb-4">
+          <p className="mb-2">아이디</p>
+          <Input
+            register={register("email", {
+              required: "이메일을 입력해 주세요",
+            })}
+            type="email"
+            id=""
+            defaultValue={loginForm.email}
+            placeholder="email"
+            className="w-full"
+          />
+          {errors.email?.message}
+        </div>
+        <p className="mb-2">비밀번호</p>
+        <div className="mb-4 relative">
+          <Input
+            register={register("password", {
+              required: "비밀번호를 입력해 주세요",
+            })}
+            type={displayPass ? "text" : "password"}
+            id=""
+            defaultValue={loginForm.password}
+            placeholder="password"
+            className="w-full"
+          />
+          <div
+            onClick={passwordDisplayToggle}
+            className="absolute translate-y-[-50%] top-[50%] right-3"
+          >
+            {displayPass ? (
+              <svg
+                width="22"
+                height="15"
+                viewBox="0 0 22 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 12C12.25 12 13.3125 11.5625 14.1875 10.6875C15.0625 9.8125 15.5 8.75 15.5 7.5C15.5 6.25 15.0625 5.1875 14.1875 4.3125C13.3125 3.4375 12.25 3 11 3C9.75 3 8.6875 3.4375 7.8125 4.3125C6.9375 5.1875 6.5 6.25 6.5 7.5C6.5 8.75 6.9375 9.8125 7.8125 10.6875C8.6875 11.5625 9.75 12 11 12ZM11 10.2C10.25 10.2 9.6125 9.9375 9.0875 9.4125C8.5625 8.8875 8.3 8.25 8.3 7.5C8.3 6.75 8.5625 6.1125 9.0875 5.5875C9.6125 5.0625 10.25 4.8 11 4.8C11.75 4.8 12.3875 5.0625 12.9125 5.5875C13.4375 6.1125 13.7 6.75 13.7 7.5C13.7 8.25 13.4375 8.8875 12.9125 9.4125C12.3875 9.9375 11.75 10.2 11 10.2ZM11 15C8.56667 15 6.35 14.3208 4.35 12.9625C2.35 11.6042 0.9 9.78333 0 7.5C0.9 5.21667 2.35 3.39583 4.35 2.0375C6.35 0.679167 8.56667 0 11 0C13.4333 0 15.65 0.679167 17.65 2.0375C19.65 3.39583 21.1 5.21667 22 7.5C21.1 9.78333 19.65 11.6042 17.65 12.9625C15.65 14.3208 13.4333 15 11 15ZM11 13C12.8833 13 14.6125 12.5042 16.1875 11.5125C17.7625 10.5208 18.9667 9.18333 19.8 7.5C18.9667 5.81667 17.7625 4.47917 16.1875 3.4875C14.6125 2.49583 12.8833 2 11 2C9.11667 2 7.3875 2.49583 5.8125 3.4875C4.2375 4.47917 3.03333 5.81667 2.2 7.5C3.03333 9.18333 4.2375 10.5208 5.8125 11.5125C7.3875 12.5042 9.11667 13 11 13Z"
+                  fill="#9BA5B7"
+                />
+              </svg>
+            ) : (
+              <svg
+                width="22"
+                height="15"
+                viewBox="0 0 22 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 12C12.25 12 13.3125 11.5625 14.1875 10.6875C15.0625 9.8125 15.5 8.75 15.5 7.5C15.5 6.25 15.0625 5.1875 14.1875 4.3125C13.3125 3.4375 12.25 3 11 3C9.75 3 8.6875 3.4375 7.8125 4.3125C6.9375 5.1875 6.5 6.25 6.5 7.5C6.5 8.75 6.9375 9.8125 7.8125 10.6875C8.6875 11.5625 9.75 12 11 12ZM11 10.2C10.25 10.2 9.6125 9.9375 9.0875 9.4125C8.5625 8.8875 8.3 8.25 8.3 7.5C8.3 6.75 8.5625 6.1125 9.0875 5.5875C9.6125 5.0625 10.25 4.8 11 4.8C11.75 4.8 12.3875 5.0625 12.9125 5.5875C13.4375 6.1125 13.7 6.75 13.7 7.5C13.7 8.25 13.4375 8.8875 12.9125 9.4125C12.3875 9.9375 11.75 10.2 11 10.2ZM11 15C8.56667 15 6.35 14.3208 4.35 12.9625C2.35 11.6042 0.9 9.78333 0 7.5C0.9 5.21667 2.35 3.39583 4.35 2.0375C6.35 0.679167 8.56667 0 11 0C13.4333 0 15.65 0.679167 17.65 2.0375C19.65 3.39583 21.1 5.21667 22 7.5C21.1 9.78333 19.65 11.6042 17.65 12.9625C15.65 14.3208 13.4333 15 11 15ZM11 13C12.8833 13 14.6125 12.5042 16.1875 11.5125C17.7625 10.5208 18.9667 9.18333 19.8 7.5C18.9667 5.81667 17.7625 4.47917 16.1875 3.4875C14.6125 2.49583 12.8833 2 11 2C9.11667 2 7.3875 2.49583 5.8125 3.4875C4.2375 4.47917 3.03333 5.81667 2.2 7.5C3.03333 9.18333 4.2375 10.5208 5.8125 11.5125C7.3875 12.5042 9.11667 13 11 13Z"
+                  fill="#545F71"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+        {errors.password?.message}
+
+        <div className="flex justify-end gap-5 mb-9">
           <label htmlFor="idSet">
             <input type="checkbox" id="idSet" />
             <span>아이디 저장</span>
           </label>
           <label htmlFor="autoLogin">
             <input type="checkbox" id="autoLogin" />
-            <span>자동 로그인</span>
+            <span>로그인 유지</span>
           </label>
         </div>
+        <ButtonPrimary type="submit" disabled={false} className="mb-4">
+          로그인
+        </ButtonPrimary>
       </form>
 
-      <div className="flex gap-5">
+      <div className="flex gap-5 mb-9">
         <Link href={"/register"} className="w-1/2 border-r text-center">
           회원가입
         </Link>
@@ -129,7 +181,10 @@ export default function Login() {
               />
             </svg>
           </ButtonSecondary>
-          <ButtonSecondary className="bg-slate-200 p-1">
+          <ButtonSecondary
+            onClick={naverLoginRedir}
+            className="bg-slate-200 p-1"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
